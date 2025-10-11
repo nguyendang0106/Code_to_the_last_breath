@@ -32,44 +32,97 @@ Ouput
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
 int n;
-vector<int> a;
+vector<int> arr;
 int m;
 string query;
 int ik, jk;
 
-void getMax()
+vector<int> res;
+vector<int> max_st; // 2^0 + 2^1 + ... + 2^k = 2^(k - 1) - 1 < 4n (k = log(n))
+
+int buildTree(int index, int L, int R)
 {
+    if (L == R)
+    {
+        return max_st[index] = arr[L];
+    }
+
+    int mid = (L + R) / 2;
+    int max_left = buildTree(index * 2, L, mid);
+    int max_right = buildTree(index * 2 + 1, mid + 1, R);
+
+    return max_st[index] = max(max_left, max_right);
 }
 
-void update()
+int getMax(int index, int L, int R, int a, int b)
 {
+    if (a > R || b < L) // [L, R] [a, b] or [a, b] [L, R]
+    {
+        return 0;
+    }
+
+    if (a <= L && R <= b) // [a [L, R] b]
+    {
+        return max_st[index];
+    }
+
+    int mid = (L + R) / 2;
+    int max_left = getMax(index * 2, L, mid, a, b);
+    int max_right = getMax(index * 2 + 1, mid + 1, R, a, b);
+
+    return max(max_left, max_right);
+}
+
+void update(int index, int L, int R, int a, int b)
+{
+    if (a < L || a > R)
+    {
+        return;
+    }
+
+    if (L == R)
+    {
+        arr[L] = b;
+        max_st[index] = b;
+        return;
+    }
+
+    int mid = (L + R) / 2;
+    update(index * 2, L, mid, a, b);
+    update(index * 2 + 1, mid + 1, R, a, b);
+
+    max_st[index] = max(max_st[index * 2], max_st[index * 2 + 1]);
 }
 
 void solve(string q, int a, int b)
 {
     if (q == "get-max")
     {
-        getMax();
+        res.push_back(getMax(1, 1, n, a, b));
     }
     else if (q == "update")
     {
-        update();
+        update(1, 1, n, a, b);
     }
 }
 
 void input()
 {
     cin >> n;
-    a.resize(n);
+    arr.resize(n + 1);
+    max_st.resize(4 * n);
 
-    for (int i = 0; i < n; i++)
+    for (int i = 1; i <= n; i++)
     {
-        cin >> a[i];
+        cin >> arr[i];
     }
+
+    int build_tree = buildTree(1, 1, n);
 
     cin >> m;
     for (int i = 0; i < m; i++)
@@ -83,6 +136,10 @@ void input()
 
 void output()
 {
+    for (vector<int>::iterator it = res.begin(); it != res.end(); it++)
+    {
+        cout << (*it) << endl;
+    }
 }
 
 int main()
