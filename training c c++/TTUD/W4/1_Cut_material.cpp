@@ -25,33 +25,108 @@ Output
 using namespace std;
 
 int H, W;
-int n;
+int N;
 vector<int> hk;
 vector<int> wk;
+
+vector<vector<bool>> material;
+bool complete = false;
 
 void input()
 {
     cin >> H >> W;
-    cin >> n;
-    hk.resize(n);
-    wk.resize(n);
+    cin >> N;
+    hk.resize(N);
+    wk.resize(N);
+    material.resize(H, vector<bool>(W));
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < N; i++)
     {
         cin >> hk[i] >> wk[i];
     }
 }
 
-bool check()
+void cutOrUnCutMaterial(int i, int j, int height, int width, bool s)
 {
+    for (int m = i; m < i + height; m++)
+    {
+        for (int n = j; n < j + width; n++)
+        {
+            material[m][n] = s;
+        }
+    }
 }
 
-void solve()
+bool check(int i, int j, int height, int width)
 {
+    if (i + height > H || j + width > W)
+    {
+        return false;
+    }
+
+    for (int m = i; m < i + height; m++)
+    {
+        for (int n = j; n < j + width; n++)
+        {
+            if (material[m][n] == true)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+void solve(int k)
+{
+    for (int i = 0; i <= 1; i++)
+    {
+        int h_k = hk[k], w_k = wk[k];
+
+        // rotate
+        if (i == 1)
+        {
+            h_k = wk[k];
+            w_k = hk[k];
+        }
+
+        for (int m = 0; m < H - h_k + 1; m++)
+        {
+            for (int n = 0; n < W - w_k + 1; n++)
+            {
+                if (check(m, n, h_k, w_k))
+                {
+                    cutOrUnCutMaterial(m, n, h_k, w_k, true);
+
+                    if (k == N - 1)
+                    {
+                        complete = true;
+                        return;
+                    }
+                    else
+                    {
+                        solve(k + 1);
+
+                        if (complete)
+                        {
+                            return;
+                        }
+                        else
+                        {
+                            cutOrUnCutMaterial(m, n, h_k, w_k, false);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void output()
 {
+    solve(0);
+    cout << ((complete == true) ? 1 : 0);
 }
 
 int main()
