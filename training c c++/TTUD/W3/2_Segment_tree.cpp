@@ -45,18 +45,19 @@ int ik, jk;
 vector<int> res;
 vector<int> max_st; // 2^0 + 2^1 + ... + 2^k = 2^(k - 1) - 1 < 4n (k = log(n))
 
-int buildTree(int index, int L, int R)
+void buildTree(int index, int L, int R)
 {
     if (L == R)
     {
-        return max_st[index] = arr[L];
+        max_st[index] = arr[L];
+        return;
     }
 
     int mid = (L + R) / 2;
-    int max_left = buildTree(index * 2, L, mid);
-    int max_right = buildTree(index * 2 + 1, mid + 1, R);
+    buildTree(index * 2, L, mid);
+    buildTree(index * 2 + 1, mid + 1, R);
 
-    return max_st[index] = max(max_left, max_right);
+    max_st[index] = max(max_st[index * 2], max_st[index * 2 + 1]);
 }
 
 int getMax(int index, int L, int R, int a, int b)
@@ -80,7 +81,7 @@ int getMax(int index, int L, int R, int a, int b)
 
 void update(int index, int L, int R, int a, int b)
 {
-    if (a < L || a > R)
+    if (a < L || a > R) // [a] [L, R] or [L, R] [a]
     {
         return;
     }
@@ -122,7 +123,7 @@ void input()
         cin >> arr[i];
     }
 
-    int build_tree = buildTree(1, 1, n);
+    buildTree(1, 1, n);
 
     cin >> m;
     for (int i = 0; i < m; i++)
