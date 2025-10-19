@@ -47,6 +47,8 @@ In the fifth example, all letters of the string need to be removed to make the n
 
 using namespace std;
 
+#define forn(i, n) for (int i = 0; i < n; i++)
+
 int T;
 int N;
 string S;
@@ -76,7 +78,7 @@ void solve(int n, string s)
     int h = 0;
     pfs_s.push_back(0);
     array[0 + n] = -1;
-    for (int i = 0; i < n; i++)
+    forn(i, n)
     {
         h += convert_s[i];
         pfs_s.push_back(h);
@@ -97,10 +99,8 @@ void solve(int n, string s)
     {
         // tìm đoạn ngắn nhất có tổng sum_s
         // pfs_s[r + 1] - pfs_s[l] = sum_s ([l, r])
-        for (int i = 0; i < n; i++)
+        forn(i, n)
         {
-            array[pfs_s[i]] = i;
-
             int target = pfs_s[i + 1] - sum_s;
             if (array[target + n] != -2)
             {
@@ -151,3 +151,5 @@ int main()
 
     output();
 }
+
+// đưa về bài toán tìm đoạn con ngắn nhất có tổng bằng s độ phức tạp O(n) hoặc O(nlog(n))
