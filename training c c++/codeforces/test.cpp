@@ -1,65 +1,70 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
-int t;
-int n, k;
-string tmp;
+#define forn(i, n) for (int i = 0; i < n; i++)
 
-vector<string> res;
+int T;
+int N;
+string S;
 
-void solve(int a, int b, string s)
+vector<int> res;
+
+void solve(int n, string s)
 {
-    string tmp2(a, '+');
-    unordered_map<char, int> count_actions;
+    vector<int> array(2 * n + 1, -11);                                           // chỉ số xuất hiện cuối cùng của prefix sum
+    int sum_s = count(s.begin(), s.end(), 'a') - count(s.begin(), s.end(), 'b'); // số phần tử chênh lệch của a và b -> cần xoá đi sum_s phần tử để chuỗi cân bằng
 
-    // process
-    // đếm số thao tác cho từng hành động
-    for (int i = 0; i < s.size(); i++)
+    if (sum_s == 0 || sum_s == n || sum_s == -n)
     {
-        count_actions[s[i]]++; // 0 : k0, 1 : k1, 2 : k2
+        res.push_back(sum_s == 0 ? 0 : -1);
+        vector<int>().swap(array);
+        return;
     }
 
-    // nếu n = k thì tất cả các lá bài đều bị xoá
-    if (a == b)
+    array[0 + n] = -1;
+    int h = 0; // lưu prefix sum
+    int ans = n;
+
+    forn(i, n)
     {
-        fill(tmp2.begin(), tmp2.end(), '-');
-    }
-    else // n > k
-    {
-        // k0 lá đầu tiên bị loại bỏ [0, k0 - 1]
-        fill(tmp2.begin(), tmp2.begin() + count_actions['0'], '-');
+        h += s[i] == 'a' ? 1 : -1;
+        array[h + n] = i;
 
-        // k1 lá cuối cùng bị loại bỏ [n - k1, n - 1]
-        fill(tmp2.begin() + a - count_actions['1'], tmp2.begin() + a, '-');
+        // array[h + n]: chỉ số của prefix sum của m phần tử đầu tiên -> [0, m - 1]
+        // array[h + n - sum_s]: chỉ số của prefix sum của x phần tử đầu tiên -> [0, x - 1]
+        // sum_s = m - x
 
-        // [k0 + k2, n - k1 - k2 - 1] chắc chắn không bị loại bỏ
-        // [k0, k0 + k2 - 1] và [n - k1 - k2, n - k1 - 1] không chắc chắn
-        fill(tmp2.begin() + count_actions['0'], tmp2.begin() + count_actions['0'] + count_actions['2'], '?');
-
-        fill(tmp2.begin() + a - count_actions['1'] - count_actions['2'], tmp2.begin() + a - count_actions['1'], '?');
+        if (array[h + n - sum_s] != -11) // đã tồn tại
+        {
+            ans = min(ans, i - (array[h + n - sum_s] + 1) + 1); // xoá đi [x, m - 1]
+        }
     }
 
-    res.push_back(tmp2);
+    res.push_back(ans == n ? -1 : ans);
+
+    // giải phóng
+    vector<int>().swap(array);
 }
 
 void input()
 {
-    cin >> t;
+    cin >> T;
 
-    for (int i = 0; i < t; i++)
+    for (int i = 0; i < T; i++)
     {
-        cin >> n >> k;
-        cin >> tmp;
-        solve(n, k, tmp);
+        cin >> N;
+        cin >> S;
+        solve(N, S);
     }
 }
 
 void output()
 {
-    for (vector<string>::iterator it = res.begin(); it != res.end(); it++)
+    for (vector<int>::iterator it = res.begin(); it != res.end(); it++)
     {
         cout << (*it) << endl;
     }
@@ -73,6 +78,6 @@ int main()
     input();
 
     output();
-
-    return 0;
 }
+
+// đưa về bài toán tìm đoạn con ngắn nhất có tổng bằng s độ phức tạp O(n) hoặc O(nlog(n))

@@ -44,6 +44,7 @@ In the fifth example, all letters of the string need to be removed to make the n
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 
 using namespace std;
 
@@ -57,68 +58,39 @@ vector<int> res;
 
 void solve(int n, string s)
 {
-    // chuyển string s sang dãy 1, -1
-    vector<int> convert_s;
-    for (string::iterator it = s.begin(); it != s.end(); it++)
+    vector<int> array(2 * n + 1, -11);                                           // chỉ số xuất hiện cuối cùng của prefix sum
+    int sum_s = count(s.begin(), s.end(), 'a') - count(s.begin(), s.end(), 'b'); // số phần tử chênh lệch của a và b -> cần xoá đi sum_s phần tử để chuỗi cân bằng
+
+    // không cần đoạn này thì phần code dưới vẫn ok nhưng thêm đoạn này sẽ tối ưu hơn
+    if (sum_s == 0 || sum_s == n || sum_s == -n)
     {
-        if ((*it) == 'a')
-        {
-            convert_s.push_back(1);
-        }
-        else
-        {
-            convert_s.push_back(-1);
-        }
+        res.push_back(sum_s == 0 ? 0 : -1);
+        vector<int>().swap(array);
+        return;
     }
 
-    // tính prefixsum của string s
-    vector<int> pfs_s;
-    vector<int> array(2 * n + 1, -2); // đánh giấu vị trí đầu tiên xuất hiện của prefix sum
-
-    int h = 0;
-    pfs_s.push_back(0);
     array[0 + n] = -1;
+    int h = 0; // lưu prefix sum
+    int ans = n;
+
     forn(i, n)
     {
-        h += convert_s[i];
-        pfs_s.push_back(h);
-    }
+        h += s[i] == 'a' ? 1 : -1;
+        array[h + n] = i;
 
-    int sum_s = pfs_s[n];
-    int min_subsequence = 1e9;
+        // array[h + n]: chỉ số của prefix sum của m phần tử đầu tiên -> [0, m - 1]
+        // array[h + n - sum_s]: chỉ số của prefix sum của x phần tử đầu tiên -> [0, x - 1]
+        // sum_s = m - x
 
-    if (sum_s == 0) // a == b
-    {
-        res.push_back(0);
-    }
-    else if (abs(sum_s) == n) // toàn a hoặc toàn b
-    {
-        res.push_back(-1);
-    }
-    else
-    {
-        // tìm đoạn ngắn nhất có tổng sum_s
-        // pfs_s[r + 1] - pfs_s[l] = sum_s ([l, r])
-        forn(i, n)
+        if (array[h + n - sum_s] != -11) // đã tồn tại
         {
-            int target = pfs_s[i + 1] - sum_s;
-            if (array[target + n] != -2)
-            {
-                min_subsequence = min(min_subsequence, i - array[target + n] - 1 + 1);
-            }
-            else
-            {
-                array[target + n] = i;
-            }
+            ans = min(ans, i - (array[h + n - sum_s] + 1) + 1); // xoá đi [x, m - 1]
         }
-
-        // nếu min_subsequence = n -> phải xoá hết
-        res.push_back(min_subsequence == n ? -1 : min_subsequence);
     }
+
+    res.push_back(ans == n ? -1 : ans);
 
     // giải phóng
-    vector<int>().swap(convert_s);
-    vector<int>().swap(pfs_s);
     vector<int>().swap(array);
 }
 
