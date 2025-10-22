@@ -59,7 +59,7 @@ vector<int> res;
 void solve(int n, string s)
 {
     vector<int> array(2 * n + 1, -11);                                           // chỉ số xuất hiện cuối cùng của prefix sum
-    int sum_s = count(s.begin(), s.end(), 'a') - count(s.begin(), s.end(), 'b'); // số phần tử chênh lệch của a và b -> cần xoá đi sum_s phần tử để chuỗi cân bằng
+    int sum_s = count(s.begin(), s.end(), 'a') - count(s.begin(), s.end(), 'b'); // số phần tử chênh lệch của a và b -> cần xoá đi |sum_s| phần tử để chuỗi cân bằng
 
     // không cần đoạn này thì phần code dưới vẫn ok nhưng thêm đoạn này sẽ tối ưu hơn
     if (sum_s == 0 || sum_s == n || sum_s == -n)
@@ -80,7 +80,7 @@ void solve(int n, string s)
 
         // array[h + n]: chỉ số của prefix sum của m phần tử đầu tiên -> [0, m - 1]
         // array[h + n - sum_s]: chỉ số của prefix sum của x phần tử đầu tiên -> [0, x - 1]
-        // sum_s = m - x
+        // |sum_s| = m - x
 
         if (array[h + n - sum_s] != -11) // đã tồn tại
         {
