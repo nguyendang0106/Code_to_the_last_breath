@@ -71,10 +71,10 @@ void input()
     }
 }
 
-void update_best(int v)
+void update_best()
 {
-    if (f_cur + matrix[v][0] < f_best)
-        f_best = f_cur + matrix[v][0];
+    if (f_cur < f_best)
+        f_best = f_cur;
 }
 
 bool check_X(int v, int k)
@@ -116,19 +116,27 @@ void TRY_X(int s, int k)
             if (v > 0) // chưa về depot
             {
                 // cắt nhánh
+                if ((N + nbR - segments) * C_min < f_best)
+                    TRY_X(v, k); // xây dựng tiếp cho tuyến hiện tại
             }
             else // đã về depot
             {
                 // xem đây có phải xe cuối không? = xem đã xây đủ k tuyến chưa?
                 if (k == K)
                 {
+                    if (segments == N + nbR)
+                        update_best();
                 }
                 else
                 {
+                    // cắt nhánh
+                    if ((N + nbR - segments) * C_min < f_best)
+                        TRY_X(Y[k + 1], k + 1); // xây dựng tuyến cho xe kế tiếp
                 }
             }
 
             // back track
+            X[s] = -1;
             visited[v] = 0;
             load[k] += demand[s];
             segments--;
@@ -151,8 +159,8 @@ void output()
 {
     load.resize(N + 1, Q); // [1, ..., N]
     visited.resize(N + 1);
-    X.resize(N + 1);
-    Y.resize(N + 1);
+    X.resize(N + 1, -1);
+    Y.resize(N + 1, -1);
     cout << f_best;
 }
 
