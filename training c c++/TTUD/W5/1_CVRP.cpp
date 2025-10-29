@@ -116,7 +116,7 @@ void TRY_X(int s, int k)
             if (v > 0) // chưa về depot
             {
                 // cắt nhánh
-                if ((N + nbR - segments) * C_min < f_best)
+                if (f_cur + (N + nbR - segments) * C_min < f_best)
                     TRY_X(v, k); // xây dựng tiếp cho tuyến hiện tại
             }
             else // đã về depot
@@ -130,7 +130,7 @@ void TRY_X(int s, int k)
                 else
                 {
                     // cắt nhánh
-                    if ((N + nbR - segments) * C_min < f_best)
+                    if (f_cur + (N + nbR - segments) * C_min < f_best)
                         TRY_X(Y[k + 1], k + 1); // xây dựng tuyến cho xe kế tiếp
                 }
             }
